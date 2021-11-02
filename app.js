@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-
+const gameJs = require('./game.js');
 const PORT = process.env.PORT || 5000;
 
 let games = [
@@ -9,6 +9,9 @@ let games = [
 ];
 
 app.use(express.json());
+
+//both index.js and things.js should be in same directory
+app.use('/game', gameJs);
 
 // Code
 app.get('/game', (req, res) => {
