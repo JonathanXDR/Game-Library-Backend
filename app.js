@@ -15,7 +15,7 @@ app.get('/game', (req, res) => {
   res.json(games);
 });
 
-app.get('/game/:id', (req, res) => { 
+app.get('/game/:id', (req, res) => {
   const gameId = req.params.id;
   const foundGame = games.find((game) => game.id === gameId);
   res.json(foundGame);
@@ -23,6 +23,34 @@ app.get('/game/:id', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`server isch am laufe!!! http://localhost:${PORT}`);
+});
+
+app.post('/game', (req, res) => {
+  games.push(req.body);
+  res.send(games);
+});
+
+app.put('/game/:id', (req, res) => {
+  const body = req.body;
+  const gameId = req.params.id;
+
+  const newGames = games.map((game) => {
+    if (game.id === gameId) {
+      return body;
+    } else {
+      return game;
+    }
+  });
+  games = newGames;
+  res.send(games);
+});
+
+app.delete('/game/:id', (req, res) => {
+  const gameId = req.params.id;
+
+  const newGames = games.filter((game) => game.id !== gameId);
+  games = newGames;
+  res.send(games);
 });
 
 // GET /game => return all (Done)
