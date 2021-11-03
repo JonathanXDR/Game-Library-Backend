@@ -1,12 +1,18 @@
 const express = require('express');
 const app = express();
-const gameJs = require('./game.js');
+const gameRouter = require('./game.js');
+const userRouter = require('./user.js');
+const connection = require('./database.js');
+
 const PORT = process.env.PORT || 5000;
+
+connection.connect();
 
 app.use(express.json());
 
 //both index.js and things.js should be in same directory
-app.use('/game', gameJs);
+app.use('/game', gameRouter);
+app.use('/user', userRouter);
 
 // Code
 

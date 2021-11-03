@@ -1,47 +1,62 @@
 const express = require('express');
 const router = express.Router();
-
-let games = [
-  { id: '1', name: 'Minecraft', year: 2011 },
-  { id: '2', name: 'LOL', year: 2015 },
-];
+const connection = require('./database.js');
+const uuid = require('uuid');
 
 router.get('/', (req, res) => {
-  res.json(games);
+  connection.query('SELECT * FROM game', (err, rows) => {
+    if (err) throw err;
+    res.json(rows);
+  });
 });
 
 router.post('/', (req, res) => {
-  games.push(req.body);
-  res.send(games);
+  const body = req.body;
+  connection.query(
+    `INSERT INTO game (id, name, year, rating) VALUES ("${uuid.v4()}", "${
+      body.name
+    }", ${body.year}, ${body.rating})`,
+    (err, rows) => {
+      if (err) throw err;
+      res.sendStatus(200);
+    }
+  );
 });
 
 router.put('/:id', (req, res) => {
   const body = req.body;
   const gameId = req.params.id;
 
-  const newGames = games.map((game) => {
-    if (game.id === gameId) {
-      return body;
-    } else {
-      return game;
+  connection.query(
+    `UPDATE game SET game.name = "${body.name}", game.year = ${body.year}, game.rating = ${body.rating} WHERE id = ${gameId}`,
+    (err, rows) => {
+      if (err) throw err;
+
+      res.sendStatus(200);
     }
-  });
-  games = newGames;
-  res.send(games);
+  );
 });
 
 router.delete('/:id', (req, res) => {
   const gameId = req.params.id;
 
-  const newGames = games.filter((game) => game.id !== gameId);
-  games = newGames;
-  res.send(games);
+  connection.query(`DELETE FROM game WHERE id = ${gameId}`, (err, rows) => {
+    if (err) throw err;
+
+    res.sendStatus(204);
+  });
 });
 
 router.get('/:id', (req, res) => {
   const gameId = req.params.id;
-  const foundGame = games.find((game) => game.id === gameId);
-  res.json(foundGame);
+  connection.query(`SELECT * FROM game WHERE id = ${gameId}`, (err, rows) => {
+    if (err) throw err;
+    if (rows.length === 0) {
+      res.sendStatus(404);
+    } else {
+      res.json(rows);
+    }
+  });
 });
 
 //export this router to use in our index.js
