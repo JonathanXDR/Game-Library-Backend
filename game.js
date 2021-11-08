@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const connection = require('./database.js');
+const connection = require('./config/database.js');
 const uuid = require('uuid');
 const authenticateToken = require('./middlewares/auth.js');
 

@@ -1,17 +1,22 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const router = express.Router();
-const connection = require('./database.js');
+const connection = require('./config/database.js');
 const uuid = require('uuid');
 const jwt = require('jsonwebtoken');
 const authenticateToken = require('./middlewares/auth.js');
+const User = require('./models/User.js');
+const sequelize = require('sequelize');
 
 // User Login
-router.get('/', authenticateToken, (req, res) => {
-  connection.query('SELECT * FROM user', (err, rows) => {
-    if (err) throw err;
-    res.json(rows);
-  });
+router.get('/', authenticateToken, async (req, res) => {
+  const allUsers = await User.findAll();
+  res.json(allUsers);
+
+  // connection.query('SELECT * FROM user', (err, rows) => {
+  //   if (err) throw err;
+  //   res.json(rows);
+  // });
 });
 
 router.post('/', async (req, res) => {

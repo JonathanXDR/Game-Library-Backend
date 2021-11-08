@@ -2,12 +2,19 @@ const express = require('express');
 const app = express();
 const gameRouter = require('./game.js');
 const userRouter = require('./user.js');
-const connection = require('./database.js');
+const sequelize = require('./config/database.js');
 require('dotenv').config();
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3010
 
-connection.connect();
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Connection has been established successfully.');
+  })
+  .catch((err) => {
+    console.error('Unable to connect to the database:', err);
+  });
 
 app.use(express.json());
 
