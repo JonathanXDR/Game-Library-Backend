@@ -18,8 +18,9 @@ const Game = db.define(
   },
   {
     freezeTableName: true,
+    timestamps: false,
     // Other model options go here
   }
 );
 
-module.export = Game;
+module.exports = Game;
