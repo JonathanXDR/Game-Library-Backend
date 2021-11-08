@@ -3,6 +3,7 @@ const app = express();
 const gameRouter = require('./game.js');
 const userRouter = require('./user.js');
 const connection = require('./database.js');
+require('dotenv').config();
 
 const PORT = process.env.PORT || 5000;
 

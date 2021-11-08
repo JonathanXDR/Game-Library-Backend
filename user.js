@@ -3,9 +3,11 @@ const bcrypt = require('bcrypt');
 const router = express.Router();
 const connection = require('./database.js');
 const uuid = require('uuid');
+const jwt = require('jsonwebtoken');
+const authenticateToken = require('./middlewares/auth.js');
 
 // User Login
-router.get('/', (req, res) => {
+router.get('/', authenticateToken, (req, res) => {
   connection.query('SELECT * FROM user', (err, rows) => {
     if (err) throw err;
     res.json(rows);
@@ -30,27 +32,29 @@ router.post('/login', (req, res) => {
     `SELECT * FROM user WHERE username = "${req.body.username}"`,
     (err, rows) => {
       if (err) throw err;
-
-      console.log(rows);
-
       if (rows.length === 0) {
         return res.status(400).send('Cannot find user');
       }
       try {
         bcrypt.compare(req.body.password, rows[0].password).then((hash) => {
           if (hash) {
-              // TODO: Generate jwt token
-              // TODO: send token
-            res.send('Success');
+            const accessToken = jwt.sign(
+              req.body.username,
+              process.env.ACCESS_TOKEN_SECRET
+              // { expiresIn: '15s' }
+            );
+
+            res.json(accessToken);
           } else {
-            res.send('Not Allowed');
+            res.sendStatus(403);
           }
         });
       } catch {
-        res.status(500).send();
+        res.sendStatus(500);
       }
     }
   );
 });
+
 //export this router to use in our index.js
 module.exports = router;

@@ -2,15 +2,16 @@ const express = require('express');
 const router = express.Router();
 const connection = require('./database.js');
 const uuid = require('uuid');
+const authenticateToken = require('./middlewares/auth.js');
 
-router.get('/', (req, res) => {
+router.get('/', authenticateToken, (req, res) => {
   connection.query('SELECT * FROM game', (err, rows) => {
     if (err) throw err;
     res.json(rows);
   });
 });
 
-router.post('/', (req, res) => {
+router.post('/', authenticateToken, (req, res) => {
   const body = req.body;
   connection.query(
     `INSERT INTO game (id, name, year, rating) VALUES ("${uuid.v4()}", "${
@@ -23,12 +24,12 @@ router.post('/', (req, res) => {
   );
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', authenticateToken, (req, res) => {
   const body = req.body;
   const gameId = req.params.id;
 
   connection.query(
-    `UPDATE game SET game.name = "${body.name}", game.year = ${body.year}, game.rating = ${body.rating} WHERE id = ${gameId}`,
+    `UPDATE game SET game.name = "${body.name}", game.year = ${body.year}, game.rating = ${body.rating} WHERE id = "${gameId}"`,
     (err, rows) => {
       if (err) throw err;
 
@@ -37,24 +38,24 @@ router.put('/:id', (req, res) => {
   );
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authenticateToken, (req, res) => {
   const gameId = req.params.id;
 
-  connection.query(`DELETE FROM game WHERE id = ${gameId}`, (err, rows) => {
+  connection.query(`DELETE FROM game WHERE id = "${gameId}"`, (err, rows) => {
     if (err) throw err;
 
     res.sendStatus(204);
   });
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', authenticateToken, (req, res) => {
   const gameId = req.params.id;
-  connection.query(`SELECT * FROM game WHERE id = ${gameId}`, (err, rows) => {
+  connection.query(`SELECT * FROM game WHERE id = "${gameId}"`, (err, rows) => {
     if (err) throw err;
     if (rows.length === 0) {
       res.sendStatus(404);
     } else {
-      res.json(rows);
+      res.json(rows[0]);
     }
   });
 });
