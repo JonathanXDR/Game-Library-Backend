@@ -34,7 +34,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
 });
 
 router.delete('/:id', authenticateToken, async (req, res) => {
-  // delete game where id = req.params.id
+  // Delete game where id = req.params.id
   await Game.destroy({ where: { id: req.params.id } });
   res.sendStatus(204);
 });

@@ -21,11 +21,9 @@ sequelize
 
 app.use(express.json());
 
-//both index.js and things.js should be in same directory
+// Both index.js and things.js should be in same directory
 app.use('/game', gameRouter);
 app.use('/user', userRouter);
-
-// Code
 
 app.listen(PORT, () => {
   console.log(`server isch am laufe!!! http://localhost:${PORT}`);
