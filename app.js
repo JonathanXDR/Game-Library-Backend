@@ -1,12 +1,12 @@
 const express = require('express');
 const morgan = require('morgan');
 const app = express();
-const gameRouter = require('./game.js');
-const userRouter = require('./user.js');
+const gameRouter = require('./routes/game.js');
+const userRouter = require('./routes/user.js');
 const sequelize = require('./config/database.js');
 require('dotenv').config();
 
-const PORT = process.env.PORT || 3010
+const PORT = process.env.PORT || 3010;
 
 app.use(morgan('dev'));
 
