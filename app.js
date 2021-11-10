@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
 const app = express();
 const gameRouter = require('./routes/game.js');
 const userRouter = require('./routes/user.js');
@@ -9,6 +10,7 @@ require('dotenv').config();
 const PORT = process.env.PORT || 3010;
 
 app.use(morgan('dev'));
+app.use(cors());
 
 sequelize
   .authenticate()
