@@ -29,8 +29,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
     rating: req.body.rating,
   });
 
-  await foundGame.save();
-  res.sendStatus(200);
+  res.send(await foundGame.save());
 });
 
 router.delete('/:id', authenticateToken, async (req, res) => {
