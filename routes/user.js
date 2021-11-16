@@ -28,7 +28,6 @@ router.post('/login', async (req, res) => {
   // get one user with username
   const user = await User.findOne({ where: { username: req.body.username } });
 
-  console.log(user);
   // check if user exists
   if (!user) {
     return res.status(401).send('Wrong username or password');
@@ -38,9 +37,9 @@ router.post('/login', async (req, res) => {
     bcrypt.compare(req.body.password, user.password).then((hash) => {
       if (hash) {
         const accessToken = jwt.sign(
-          req.body.username,
-          process.env.ACCESS_TOKEN_SECRET
-          // { expiresIn: '15s' }
+          { id: user.id, username: user.username },
+          process.env.ACCESS_TOKEN_SECRET,
+          { expiresIn: '60s' }
         );
 
         res.json(accessToken);
