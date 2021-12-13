@@ -9,6 +9,16 @@ router.get('/', authenticateToken, async (req, res) => {
   res.json(allGames);
 });
 
+router.get('/:id', authenticateToken, async (req, res) => {
+  const game = await Game.findOne({ where: { id: req.params.id } });
+
+  if (!game) {
+    res.status(404).send('Game not found');
+  } else {
+    res.json(game);
+  }
+});
+
 router.post('/', authenticateToken, async (req, res) => {
   const createdGame = await Game.create({
     id: uuid.v4(),
@@ -36,16 +46,6 @@ router.delete('/:id', authenticateToken, async (req, res) => {
   // Delete game where id = req.params.id
   await Game.destroy({ where: { id: req.params.id } });
   res.sendStatus(204);
-});
-
-router.get('/:id', authenticateToken, async (req, res) => {
-  const game = await Game.findOne({ where: { id: req.params.id } });
-
-  if (!game) {
-    res.status(404).send('Game not found');
-  } else {
-    res.json(game);
-  }
 });
 
 module.exports = router;

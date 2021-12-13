@@ -12,6 +12,16 @@ router.get('/', authenticateToken, async (req, res) => {
   res.json(allUsers);
 });
 
+router.get('/:id', authenticateToken, async (req, res) => {
+  const user = await User.findOne({ where: { id: req.params.id } });
+
+  if (!user) {
+    res.status(404).send('User not found');
+  } else {
+    res.json(user);
+  }
+});
+
 router.post('/', async (req, res) => {
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
@@ -50,6 +60,24 @@ router.post('/login', async (req, res) => {
   } catch {
     res.sendStatus(500);
   }
+});
+
+router.put('/:id', authenticateToken, async (req, res) => {
+  const foundUser = await User.findOne({ where: { id: req.params.id } });
+  const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+  foundUser.update({
+    username: req.body.username,
+    password: hashedPassword,
+  });
+
+  res.send(await foundUser.save());
+});
+
+router.delete('/:id', authenticateToken, async (req, res) => {
+  // Delete user where id = req.params.id
+  await User.destroy({ where: { id: req.params.id } });
+  res.sendStatus(204);
 });
 
 module.exports = router;
