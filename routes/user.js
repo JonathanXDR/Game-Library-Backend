@@ -71,7 +71,15 @@ router.put('/:id', authenticateToken, async (req, res) => {
     password: hashedPassword,
   });
 
-  res.send(await foundUser.save());
+  await foundUser.save();
+
+  const accessToken = jwt.sign(
+    { id: foundUser.id, username: foundUser.username },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: '2h' }
+  );
+
+  res.json(accessToken);
 });
 
 router.delete('/:id', authenticateToken, async (req, res) => {
