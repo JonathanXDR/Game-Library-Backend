@@ -52,6 +52,10 @@ router.post('/login', async (req, res) => {
           { expiresIn: '2h' }
         );
 
+        res.setHeader('Set-Cookie', [
+          `accessToken=${accessToken}; HttpOnly; Max-Age=${60000 * 15};`,
+        ]);
+
         res.json(accessToken);
       } else {
         res.sendStatus(403);
@@ -78,6 +82,10 @@ router.put('/:id', authenticateToken, async (req, res) => {
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: '2h' }
   );
+
+  res.setHeader('Set-Cookie', [
+    `accessToken=${accessToken}; HttpOnly; Max-Age=${60000 * 15};`,
+  ]);
 
   res.json(accessToken);
 });
