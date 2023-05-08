@@ -14,19 +14,19 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^2.0.14"
+    "nodemon": "^2.0.22"
   },
   "dependencies": {
-    "bcrypt": "^5.0.1",
+    "bcrypt": "^5.1.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "jsonwebtoken": "^8.5.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
-    "mysql2": "^2.3.3-rc.0",
-    "sequelize": "^6.9.0",
-    "uuid": "^8.3.2"
+    "mysql2": "^3.3.0",
+    "sequelize": "^6.31.1",
+    "uuid": "^9.0.0"
   }
 }
