@@ -1,8 +1,9 @@
 const express = require('express');
-const router = express.Router();
 const uuid = require('uuid');
 const authenticateToken = require('../middlewares/auth.js');
 const Game = require('../models/Game.js');
+
+const router = express.Router();
 
 router.get('/', authenticateToken, async (req, res) => {
   const allGames = await Game.findAll();
@@ -11,39 +12,31 @@ router.get('/', authenticateToken, async (req, res) => {
 
 router.get('/:id', authenticateToken, async (req, res) => {
   const game = await Game.findOne({ where: { id: req.params.id } });
-
   if (!game) {
-    res.status(404).send('Game not found');
-  } else {
-    res.json(game);
+    return res.status(404).send('Game not found');
   }
+  res.json(game);
 });
 
 router.post('/', authenticateToken, async (req, res) => {
+  const { name, year, rating } = req.body;
   const createdGame = await Game.create({
     id: uuid.v4(),
-    name: req.body.name,
-    year: req.body.year,
-    rating: req.body.rating,
+    name,
+    year,
+    rating
   });
-
   res.json(createdGame);
 });
 
 router.put('/:id', authenticateToken, async (req, res) => {
+  const { name, year, rating } = req.body;
   const foundGame = await Game.findOne({ where: { id: req.params.id } });
-
-  foundGame.update({
-    name: req.body.name,
-    year: req.body.year,
-    rating: req.body.rating,
-  });
-
-  res.send(await foundGame.save());
+  foundGame.update({ name, year, rating });
+  res.json(await foundGame.save());
 });
 
 router.delete('/:id', authenticateToken, async (req, res) => {
-  // Delete game where id = req.params.id
   await Game.destroy({ where: { id: req.params.id } });
   res.sendStatus(204);
 });

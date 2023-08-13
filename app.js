@@ -1,18 +1,21 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const config = require('dotenv').config();
 const app = express();
+const PORT = process.env.PORT || 3010;
 const gameRouter = require('./routes/game.js');
 const userRouter = require('./routes/user.js');
 const sequelize = require('./config/database.js');
-const cookieParser = require('cookie-parser');
-require('dotenv').config();
-
-const PORT = process.env.PORT || 3010;
 
 app.use(morgan('dev'));
 app.use(cors());
 app.use(cookieParser());
+app.use(express.json());
+app.use('/game', gameRouter);
+app.use('/user', userRouter);
+
 
 sequelize
   .authenticate()
@@ -23,18 +26,7 @@ sequelize
     console.error('Unable to connect to the database:', err);
   });
 
-app.use(express.json());
-
-// Both index.js and things.js should be in same directory
-app.use('/game', gameRouter);
-app.use('/user', userRouter);
 
 app.listen(PORT, () => {
-  console.log(`server isch am laufe!!! http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });
-
-// GET /game => return all (Done)
-// GET /game/1 => return one
-// POST /game => create
-// PUT /game => update
-// DELETE /game => delete

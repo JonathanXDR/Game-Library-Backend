@@ -1,12 +1,12 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
-const router = express.Router();
-const uuid = require('uuid');
 const jwt = require('jsonwebtoken');
+const uuid = require('uuid');
 const authenticateToken = require('../middlewares/auth.js');
 const User = require('../models/User.js');
 
-// User Login
+const router = express.Router();
+
 router.get('/', authenticateToken, async (req, res) => {
   const allUsers = await User.findAll();
   res.json(allUsers);
@@ -14,67 +14,49 @@ router.get('/', authenticateToken, async (req, res) => {
 
 router.get('/:id', authenticateToken, async (req, res) => {
   const user = await User.findOne({ where: { id: req.params.id } });
-
   if (!user) {
-    res.status(404).send('User not found');
-  } else {
-    res.json(user);
+    return res.status(404).send('User not found');
   }
+  res.json(user);
 });
 
 router.post('/', async (req, res) => {
-  const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
+  const { username, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
   const createdUser = await User.create({
     id: uuid.v4(),
-    username: req.body.username,
+    username,
     password: hashedPassword,
   });
-
   res.json(createdUser);
 });
 
 router.post('/login', async (req, res) => {
-  // get one user with username
-  const user = await User.findOne({ where: { username: req.body.username } });
-
-  // check if user exists
+  const { username, password } = req.body;
+  const user = await User.findOne({ where: { username } });
   if (!user) {
     return res.status(401).send('Wrong username or password');
   }
 
-  try {
-    bcrypt.compare(req.body.password, user.password).then((hash) => {
-      if (hash) {
-        const accessToken = jwt.sign(
-          { id: user.id, username: user.username },
-          process.env.ACCESS_TOKEN_SECRET,
-          { expiresIn: '2h' }
-        );
-
-        res.setHeader('Set-Cookie', [
-          `accessToken=${accessToken}; HttpOnly; Max-Age=${60000 * 15};`,
-        ]);
-
-        res.json(accessToken);
-      } else {
-        res.sendStatus(403);
-      }
-    });
-  } catch {
-    res.sendStatus(500);
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (isPasswordValid) {
+    const accessToken = jwt.sign(
+      { id: user.id, username: user.username },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: '2h' }
+    );
+    res.setHeader('Set-Cookie', `accessToken=${accessToken}; HttpOnly; Max-Age=${60000 * 15};`);
+    res.json(accessToken);
+  } else {
+    res.sendStatus(403);
   }
 });
 
 router.put('/:id', authenticateToken, async (req, res) => {
+  const { username, password } = req.body;
+  const hashedPassword = await bcrypt.hash(password, 10);
   const foundUser = await User.findOne({ where: { id: req.params.id } });
-  const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-  foundUser.update({
-    username: req.body.username,
-    password: hashedPassword,
-  });
-
+  foundUser.update({ username, password: hashedPassword });
   await foundUser.save();
 
   const accessToken = jwt.sign(
@@ -82,16 +64,11 @@ router.put('/:id', authenticateToken, async (req, res) => {
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: '2h' }
   );
-
-  res.setHeader('Set-Cookie', [
-    `accessToken=${accessToken}; HttpOnly; Max-Age=${60000 * 15};`,
-  ]);
-
+  res.setHeader('Set-Cookie', `accessToken=${accessToken}; HttpOnly; Max-Age=${60000 * 15};`);
   res.json(accessToken);
 });
 
 router.delete('/:id', authenticateToken, async (req, res) => {
-  // Delete user where id = req.params.id
   await User.destroy({ where: { id: req.params.id } });
   res.sendStatus(204);
 });
